@@ -120,5 +120,10 @@ async function calculateWallArea(): Promise<number> {
   };
 
 
+async function main() {
+    const area = await calculateWallArea()
+    console.log(area)
+}
 
+main()
 
