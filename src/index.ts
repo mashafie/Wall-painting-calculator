@@ -139,13 +139,14 @@ async function createWall(): Promise<Wall> {
 
     let areaToSubtract = 0;
     let addMoreAreas = true;
+    let firstTime = true;
 
     // Ask for areas to subtract (windows/doors)
     while (addMoreAreas) {
         const areaResponse = await inquirer.prompt({
             name: 'addArea',
             type: 'input',
-            message: 'Do you want to add an area to subtract (e.g., window, door)? (y/n)',
+            message: firstTime ? 'Do you want to add an area to subtract (e.g., window, door)? (yes/no)' : 'Do you want to add another area to subtract? (yes/no)',
             validate: validateYesNoInput
         });
 
@@ -171,13 +172,14 @@ async function createWall(): Promise<Wall> {
             const width = parseInt(subtractDimensions.width, 10);
             areaToSubtract += length * width;
         }
+        firstTime = false;
     }
 
     const areaToPaint = totalArea - areaToSubtract;
 
     // Ask for paint choice
     const paintChoices = paints.map((paint, index) => ({
-        name: `${paint.brand} - $${paint.pricePerLitre}/litre - ${paint.coverage}m²/litre (${paint.colours.join(", ")})`,
+        name: `Brand: ${paint.brand} - Price/litre: £${paint.pricePerLitre} - Coverage: ${paint.coverage}m²/litre - Available Colours: ${paint.colours.join(", ")}`,
         value: index
     }));
 
@@ -219,9 +221,11 @@ async function createWall(): Promise<Wall> {
     return wall;
 }
 
+
 // main function
 async function main() {
-    
+    const wall = await createWall();
+    console.log(wall);
 }
 
 main()
