@@ -1,6 +1,5 @@
 import inquirer from 'inquirer';
-;
-// List of paint brands
+// List of paints
 const paints = [
     {
         brand: 'Brand A',
@@ -11,7 +10,8 @@ const paints = [
             { size: 5, price: 95 },
             { size: 2.5, price: 50 },
             { size: 1, price: 22 }
-        ]
+        ],
+        colours: ["Blue", "Green"]
     },
     {
         brand: 'Brand B',
@@ -22,7 +22,8 @@ const paints = [
             { size: 5, price: 90 },
             { size: 2.5, price: 48 },
             { size: 1, price: 20 }
-        ]
+        ],
+        colours: ["Blue", "Green"]
     },
     {
         brand: 'Brand C',
@@ -33,9 +34,14 @@ const paints = [
             { size: 5, price: 115 },
             { size: 2.5, price: 60 },
             { size: 1, price: 28 }
-        ]
+        ],
+        colours: ["Blue", "Green"]
     }
 ];
+;
+;
+;
+// Function to validate user number input
 function validateNumberInput(value) {
     const parsedValue = parseInt(value, 10);
     if (isNaN(parsedValue)) {
@@ -46,6 +52,15 @@ function validateNumberInput(value) {
     }
     else if (!Number.isInteger(parsedValue)) {
         return 'Please enter an integer value';
+    }
+    return true;
+}
+;
+// Function to validate yes/no input
+function validateYesNoInput(value) {
+    const validValues = ['y', 'n', 'yes', 'no'];
+    if (!validValues.includes(value.toLowerCase())) {
+        return 'Please enter yes/no or y/n';
     }
     return true;
 }
@@ -71,60 +86,97 @@ async function askNumberOfWalls(roomNumber) {
     return parseInt(response.walls, 10);
 }
 ;
-// Function to calculate the area to paint for a given wall
-async function calculateWallArea() {
-    const wall = await inquirer.prompt([
+async function createWall() {
+    // Ask for wall dimensions
+    const wallDimensions = await inquirer.prompt([
         {
-            name: 'length',
-            type: 'number',
-            message: 'Enter the wall length (in meters):',
-            validate: (value) => value > 0 || 'Please enter a valid length'
+            name: 'totalLength',
+            type: 'input',
+            message: 'Enter the length of the wall:',
+            validate: validateNumberInput
         },
         {
-            name: 'height',
-            type: 'number',
-            message: 'Enter the wall height (in meters):',
-            validate: (value) => value > 0 || 'Please enter a valid height'
+            name: 'totalWidth',
+            type: 'input',
+            message: 'Enter the width of the wall:',
+            validate: validateNumberInput
         }
     ]);
-    let totalArea = wall.length * wall.height;
-    let subtractArea = 0;
-    let addMore = true;
-    while (addMore) {
-        const subtract = await inquirer.prompt({
-            name: 'subtract',
-            type: 'confirm',
-            message: 'Do you need to subtract any area from this wall (e.g. for a window)?'
+    const totalLength = parseInt(wallDimensions.totalLength, 10);
+    const totalWidth = parseInt(wallDimensions.totalWidth, 10);
+    const totalArea = totalLength * totalWidth;
+    let areaToSubtract = 0;
+    let addMoreAreas = true;
+    // Ask for areas to subtract (windows/doors)
+    while (addMoreAreas) {
+        const areaResponse = await inquirer.prompt({
+            name: 'addArea',
+            type: 'input',
+            message: 'Do you want to add an area to subtract (e.g., window, door)? (y/n)',
+            validate: validateYesNoInput
         });
-        if (subtract.subtract) {
-            const area = await inquirer.prompt([
-                {
-                    name: 'length',
-                    type: 'number',
-                    message: 'Enter the length of the area to subtract (in meters):',
-                    validate: (value) => value > 0 || 'Please enter a valid length'
-                },
-                {
-                    name: 'height',
-                    type: 'number',
-                    message: 'Enter the height of the area to subtract (in meters):',
-                    validate: (value) => value > 0 || 'Please enter a valid height'
-                }
-            ]);
-            subtractArea += area.length * area.height;
+        if (areaResponse.addArea.toLowerCase() === 'no' || areaResponse.addArea.toLowerCase() === 'n') {
+            addMoreAreas = false;
         }
         else {
-            addMore = false;
+            const subtractDimensions = await inquirer.prompt([
+                {
+                    name: 'length',
+                    type: 'input',
+                    message: 'Enter the length of the area to subtract:',
+                    validate: validateNumberInput
+                },
+                {
+                    name: 'width',
+                    type: 'input',
+                    message: 'Enter the width of the area to subtract:',
+                    validate: validateNumberInput
+                }
+            ]);
+            const length = parseInt(subtractDimensions.length, 10);
+            const width = parseInt(subtractDimensions.width, 10);
+            areaToSubtract += length * width;
         }
     }
-    return totalArea - subtractArea;
+    const areaToPaint = totalArea - areaToSubtract;
+    // Ask for paint choice
+    const paintChoices = paints.map((paint, index) => ({
+        name: `${paint.brand} - $${paint.pricePerLitre}/litre - ${paint.coverage}m²/litre (${paint.colours.join(", ")})`,
+        value: index
+    }));
+    const paintResponse = await inquirer.prompt({
+        name: 'paintChoice',
+        type: 'list',
+        message: 'Choose a paint for this wall:',
+        choices: paintChoices
+    });
+    const chosenPaint = paints[paintResponse.paintChoice];
+    const paintableArea = areaToPaint;
+    const litresNeededToPaint = paintableArea / chosenPaint.coverage;
+    const paintColourResponse = await inquirer.prompt({
+        name: 'paintColour',
+        type: 'list',
+        message: 'Choose a colour:',
+        choices: chosenPaint.colours
+    });
+    const paint = {
+        brand: chosenPaint.brand,
+        pricePerLitre: chosenPaint.pricePerLitre,
+        coverage: chosenPaint.coverage,
+        colour: paintColourResponse.paintColour
+    };
+    const wall = {
+        totalLength,
+        totalWidth,
+        totalArea,
+        areaToSubtract,
+        areaToPaint,
+        paint,
+        litresNeededToPaint
+    };
+    return wall;
 }
-;
 // main function
 async function main() {
-    const rooms = await askNumberOfRooms();
-    console.log(`${rooms} rooms`);
-    const walls = await askNumberOfWalls(rooms);
-    console.log(`${walls} walls`);
 }
 main();
