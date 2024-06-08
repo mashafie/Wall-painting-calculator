@@ -68,6 +68,7 @@ interface Room {
 interface User {
     name: string;
     totalRooms: number;
+    totalWall: number;
     rooms: Room[];
 };
 
@@ -85,6 +86,19 @@ function validateNumberInput(value: string): boolean | string {
     return true;
 };
 
+function validateStringInput(value: string): boolean | string {
+    if (typeof value !== 'string') {
+        return 'Please enter a valid string';
+    } else if (value.trim() === '') {
+        return 'Please enter a non-empty string';
+    } else if (value.length < 3) {
+        return 'Please enter a string with at least 3 characters';
+    } else if (value.length > 50) {
+        return 'Please enter a string with no more than 50 characters';
+    }
+    return true;
+};
+
 // Function to validate yes/no input
 function validateYesNoInput(value: string): boolean | string {
     const validValues = ['y', 'n', 'yes', 'no'];
@@ -93,6 +107,17 @@ function validateYesNoInput(value: string): boolean | string {
     }
     return true;
 };
+
+// Ask user for there name
+async function askUserName(): Promise<string> {
+    const response = await inquirer.prompt({
+        name: 'name',
+        type: 'input',
+        message: 'Welcome! What is your name?',
+        validate: validateStringInput
+    });
+    return response.name
+}
 
 // Function to ask for number of rooms
 async function askNumberOfRooms(): Promise<number> {
@@ -224,8 +249,7 @@ async function createWall(): Promise<Wall> {
 
 // main function
 async function main() {
-    const wall = await createWall();
-    console.log(wall);
+    
 }
 
 main()
