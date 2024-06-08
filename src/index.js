@@ -36,26 +36,39 @@ const paints = [
         ]
     }
 ];
+function validateNumberInput(value) {
+    const parsedValue = parseInt(value, 10);
+    if (isNaN(parsedValue)) {
+        return 'Please enter a valid number';
+    }
+    else if (parsedValue <= 0) {
+        return 'Please enter a number greater than zero';
+    }
+    else if (!Number.isInteger(parsedValue)) {
+        return 'Please enter an integer value';
+    }
+    return true;
+}
+;
 // Function to ask for number of rooms
 async function askNumberOfRooms() {
     const response = await inquirer.prompt({
         name: 'rooms',
-        type: 'number',
+        type: 'input',
         message: 'How many rooms do you need to paint?',
-        validate: (value) => value > 0 || 'Please enter a valid number'
+        validate: validateNumberInput
     });
-    return response.rooms;
+    return parseInt(response.rooms, 10);
 }
-;
 // Function to ask for the number of walls in a room
 async function askNumberOfWalls(roomNumber) {
     const response = await inquirer.prompt({
         name: 'walls',
-        type: 'number',
+        type: 'input',
         message: `How many walls do you need to paint in room ${roomNumber}?`,
-        validate: (value) => value > 0 || 'Please enter a valid number'
+        validate: validateNumberInput
     });
-    return response.walls;
+    return parseInt(response.walls, 10);
 }
 ;
 // Function to calculate the area to paint for a given wall
@@ -107,8 +120,11 @@ async function calculateWallArea() {
     return totalArea - subtractArea;
 }
 ;
+// main function
 async function main() {
-    const area = await calculateWallArea();
-    console.log(area);
+    const rooms = await askNumberOfRooms();
+    console.log(`${rooms} rooms`);
+    const walls = await askNumberOfWalls(rooms);
+    console.log(`${walls} walls`);
 }
 main();
