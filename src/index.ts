@@ -246,6 +246,33 @@ async function createWall(): Promise<Wall> {
     return wall;
 };
 
+// Function to calculate total litres from User object
+function calculateTotalLitres(user: User) {
+    // Object to storie total litres for each brand
+    const totalLitres : { [brand: string]: number } = {};
+
+    // Loop through each room in the User's rooms array
+    for (let i = 0; i < user.rooms.length; i++) {
+        const room = user.rooms[i];
+
+        // Loop through each wall in the curren room
+        for (let j = 0; j < room.walls.length; j++) {
+            const wall = room.walls[j];
+            const brand = wall.paint.brand
+
+            // If the brand is not already in totalLitres, initialise it to 0
+            if (!totalLitres[brand]) {
+                totalLitres[brand] = 0;
+            }
+
+            // Add the litres needed to paint the current wall to the total for the current brand
+            totalLitres[brand] += wall.litresNeededToPaint;
+        }
+    }
+
+    return totalLitres;
+}
+
 // Main function
 async function main() {
     // Step 1: Ask the user for their name and generate user object
@@ -285,8 +312,6 @@ async function main() {
         totalWall: rooms.reduce((total, room) => total + room.walls.length, 0),
         rooms: rooms
     };
-
-    console.log(user)
 }
 
 // Run the main function
