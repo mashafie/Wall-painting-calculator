@@ -258,6 +258,8 @@ async function main() {
         totalWall: rooms.reduce((total, room) => total + room.walls.length, 0),
         rooms: rooms
     };
+    // Calculate total litres needed for each brand
+    const totalLitres = calculateTotalLitres(user);
 }
 // Run the main function
 main();
