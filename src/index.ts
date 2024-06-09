@@ -248,30 +248,33 @@ async function createWall(): Promise<Wall> {
 
 // Function to calculate total litres from User object
 function calculateTotalLitres(user: User) {
-    // Object to storie total litres for each brand
-    const totalLitres : { [brand: string]: number } = {};
+    // Object to store total litres for each brand and color combination
+    const totalLitres: { [key: string]: number } = {};
 
     // Loop through each room in the User's rooms array
     for (let i = 0; i < user.rooms.length; i++) {
         const room = user.rooms[i];
 
-        // Loop through each wall in the curren room
+        // Loop through each wall in the current room
         for (let j = 0; j < room.walls.length; j++) {
             const wall = room.walls[j];
-            const brand = wall.paint.brand
+            const brand = wall.paint.brand;
+            const color = wall.paint.colour;
+            const key = `${brand} ${color}`;
 
-            // If the brand is not already in totalLitres, initialise it to 0
-            if (!totalLitres[brand]) {
-                totalLitres[brand] = 0;
+            // If the brand and color combination is not already in totalLitres, initialize it to 0
+            if (!totalLitres[key]) {
+                totalLitres[key] = 0;
             }
 
-            // Add the litres needed to paint the current wall to the total for the current brand
-            totalLitres[brand] += wall.litresNeededToPaint;
+            // Add the litres needed to paint the current wall to the total for the current brand and color combination
+            totalLitres[key] += wall.litresNeededToPaint;
         }
     }
 
     return totalLitres;
 }
+
 
 // Main function
 async function main() {
@@ -312,9 +315,10 @@ async function main() {
         totalWall: rooms.reduce((total, room) => total + room.walls.length, 0),
         rooms: rooms
     };
-
+    
     // Calculate total litres needed for each brand
     const totalLitres = calculateTotalLitres(user)
+    console.log(totalLitres)
 }
 
 // Run the main function
