@@ -2,19 +2,19 @@ import inquirer from 'inquirer';
 // List of paints
 const paints = [
     {
-        brand: 'Brand A',
-        pricePerLitre: 20,
-        coverage: 10,
+        brand: 'Dulux',
+        pricePerLitre: 6.8,
+        coverage: 13,
         canSize: [
-            { size: 10, price: 180 },
-            { size: 5, price: 95 },
-            { size: 2.5, price: 50 },
-            { size: 1, price: 22 }
+            { size: 10, price: 68 },
+            { size: 5, price: 34 },
+            { size: 2.5, price: 17 },
+            { size: 1, price: 6.8 }
         ],
-        colours: ["Blue", "Green"]
+        colours: ["White", "Egyptian cotton", "Stonewashed Blue", "Grey"]
     },
     {
-        brand: 'Brand B',
+        brand: 'Annie Sloan',
         pricePerLitre: 18,
         coverage: 12,
         canSize: [
@@ -56,6 +56,22 @@ function validateNumberInput(value) {
     return true;
 }
 ;
+function validateStringInput(value) {
+    if (typeof value !== 'string') {
+        return 'Please enter a valid string';
+    }
+    else if (value.trim() === '') {
+        return 'Please enter a non-empty string';
+    }
+    else if (value.length < 3) {
+        return 'Please enter a string with at least 3 characters';
+    }
+    else if (value.length > 50) {
+        return 'Please enter a string with no more than 50 characters';
+    }
+    return true;
+}
+;
 // Function to validate yes/no input
 function validateYesNoInput(value) {
     const validValues = ['y', 'n', 'yes', 'no'];
@@ -65,6 +81,16 @@ function validateYesNoInput(value) {
     return true;
 }
 ;
+// Ask user for there name
+async function askUserName() {
+    const response = await inquirer.prompt({
+        name: 'name',
+        type: 'input',
+        message: 'Welcome! What is your name?',
+        validate: validateStringInput
+    });
+    return response.name;
+}
 // Function to ask for number of rooms
 async function askNumberOfRooms() {
     const response = await inquirer.prompt({
@@ -178,9 +204,40 @@ async function createWall() {
     };
     return wall;
 }
-// main function
+;
+// Main function
 async function main() {
-    const wall = await createWall();
-    console.log(wall);
+    // Step 1: Ask the user for their name and generate user object
+    const userName = await askUserName();
+    // Step 2: Ask the user the number of rooms they need to paint
+    const numberOfRooms = await askNumberOfRooms();
+    // Array to hold the rooms
+    const rooms = [];
+    // Step 3: For each room, ask the number of walls
+    for (let i = 1; i <= numberOfRooms; i++) {
+        const numberOfWalls = await askNumberOfWalls(i);
+        // Array to hold the walls
+        const walls = [];
+        // Step 4: Create each wall using the createWall function and add it to the wall array
+        for (let j = 1; j <= numberOfWalls; j++) {
+            const wall = await createWall();
+            walls.push(wall);
+        }
+        // Add walls objects to the room object
+        const room = {
+            walls
+        };
+        rooms.push(room);
+    }
+    // Create the user object with all rooms
+    const user = {
+        name: userName,
+        totalRooms: numberOfRooms,
+        // Calculates the total number of walls in the rooms array using
+        totalWall: rooms.reduce((total, room) => total + room.walls.length, 0),
+        rooms: rooms
+    };
+    console.log(user);
 }
+// Run the main function
 main();

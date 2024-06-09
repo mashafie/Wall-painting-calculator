@@ -3,19 +3,19 @@ import inquirer from 'inquirer';
 // List of paints
 const paints = [
     { 
-      brand: 'Brand A', 
-      pricePerLitre: 20, 
-      coverage: 10, 
+      brand: 'Dulux', 
+      pricePerLitre: 6.8, 
+      coverage: 13, 
       canSize: [
-        { size: 10, price: 180 },
-        { size: 5, price: 95 },
-        { size: 2.5, price: 50 },
-        { size: 1, price: 22 }
+        { size: 10, price: 68 },
+        { size: 5, price: 34 },
+        { size: 2.5, price: 17 },
+        { size: 1, price: 6.8 }
       ],
-      colours: ["Blue", "Green"]
+      colours: ["White", "Egyptian cotton", "Stonewashed Blue", "Grey"]
     },
     { 
-      brand: 'Brand B', 
+      brand: 'Annie Sloan', 
       pricePerLitre: 18, 
       coverage: 12, 
       canSize: [
@@ -44,7 +44,7 @@ const paints = [
 interface Paint {
     brand: string;
     pricePerLitre: number;
-    coverage: number;
+    coverage: number; // m² per litre of paint
     colour: string;
 }
 
@@ -244,13 +244,50 @@ async function createWall(): Promise<Wall> {
     };
 
     return wall;
-}
+};
 
-
-// main function
+// Main function
 async function main() {
-    
+    // Step 1: Ask the user for their name and generate user object
+    const userName = await askUserName();
+
+    // Step 2: Ask the user the number of rooms they need to paint
+    const numberOfRooms = await askNumberOfRooms();
+
+    // Array to hold the rooms
+    const rooms: Room[] = [];
+
+    // Step 3: For each room, ask the number of walls
+    for (let i=1; i <= numberOfRooms; i++) {
+        const numberOfWalls = await askNumberOfWalls(i);
+
+        // Array to hold the walls
+        const walls: Wall[] = [];
+
+        // Step 4: Create each wall using the createWall function and add it to the wall array
+        for (let j = 1; j <= numberOfWalls; j++) {
+            const wall = await createWall();
+            walls.push(wall);
+        }
+
+        // Add walls objects to the room object
+        const room: Room = {
+            walls
+        };
+        rooms.push(room);
+    }
+
+    // Create the user object with all rooms
+    const user: User = {
+        name: userName,
+        totalRooms: numberOfRooms,
+        // Calculates the total number of walls in the rooms array using
+        totalWall: rooms.reduce((total, room) => total + room.walls.length, 0),
+        rooms: rooms
+    };
+
+    console.log(user)
 }
 
-main()
-
+// Run the main function
+main();
