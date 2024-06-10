@@ -324,7 +324,7 @@ function recommendation(totalLitres: { [key: string]: number }) {
     return { recommendations, totalAmount };
   };
 
-  function creatTables(totalLitres: { [key: string]: number}, recommendations: { [key: string]: [size: number, price: number][] }, totalAmount: number) {
+function createTables(totalLitres: { [key: string]: number}, recommendations: { [key: string]: [size: number, price: number][] }, totalAmount: number) {
     // First table
     console.log();
     console.log("You require:");
@@ -341,10 +341,40 @@ function recommendation(totalLitres: { [key: string]: number }) {
     // Second Table
     console.log();
     console.log("We recommend you buy:")
-    const recommendationTable = Object.keys(recommendations).map(key => {
-        
-    })
-  }
+    const recommendationTable = [];
+
+    for (const key in recommendations) {
+        // Empty object to keey track of quanity for each can size for current brand and colour combo
+        const canCounts: { [size: number]: number } = {};
+
+        // Iterates over each recommended can value (size and price) for the current key in the array
+        for (let i = 0; i < recommendations[key].length; i++) {
+            const [size, price] = recommendations[key][i];
+            // If can size is not already a jet in canCounts, initialise to 0
+            if (!canCounts[size]) {
+                canCounts[size] = 0;
+            }
+            // Increment count for the current can size
+            canCounts[size]++;
+        }
+
+        // Iterate over the keys in canCounts to create rows for the recommendationTable
+        for (const size in canCounts){
+            // Each row is an object with the below 3 properties and pushed into the recommendationTable array
+            recommendationTable.push({
+                "Brand and Colour Combination": key,
+                "Can Size (Litres)": parseFloat(size),
+                "Quantity": canCounts[size]
+            });
+        }
+    }
+    // Print recommendation table
+    console.table(recommendationTable);
+
+    // Print the total cost
+    console.log();
+    console.log(`Total Cost: £${totalAmount.toFixed(2)}`);
+  };
 
 // Main function
 async function main() {
@@ -391,6 +421,9 @@ async function main() {
 
     // Step 5: Recommendation for cans to buy and total amount
     const { recommendations, totalAmount } = recommendation(totalLitres); 
+
+    // Step 6: Turn recommendations into a table
+    createTables(totalLitres, recommendations, totalAmount);
 }
 
 // Run the main function
