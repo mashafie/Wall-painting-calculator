@@ -322,6 +322,28 @@ function recommendation(totalLitres: { [key: string]: number }) {
     }
   
     return { recommendations, totalAmount };
+  };
+
+  function creatTables(totalLitres: { [key: string]: number}, recommendations: { [key: string]: [size: number, price: number][] }, totalAmount: number) {
+    // First table
+    console.log();
+    console.log("You require:");
+    // Prints the resulting array of objects as a table to the console
+    console.table(
+        // Gets an array of all the keys in the totalLitres object and maps each key to an object with 2 properties
+        Object.keys(totalLitres).map(key => ({
+            "Product": key,
+            // rounded to 2dp then conver from string to number
+            "Required Amount (Litres)": parseFloat(totalLitres[key].toFixed(2))
+        }))
+    );
+
+    // Second Table
+    console.log();
+    console.log("We recommend you buy:")
+    const recommendationTable = Object.keys(recommendations).map(key => {
+        
+    })
   }
 
 // Main function
