@@ -14,7 +14,7 @@ const paints = [
         colours: ["White", "Egyptian cotton", "Stonewashed Blue", "Grey"]
     },
     {
-        brand: 'Annie Sloan',
+        brand: 'Leyland',
         pricePerLitre: 18,
         coverage: 12,
         canSize: [
@@ -26,7 +26,7 @@ const paints = [
         colours: ["Blue", "Green"]
     },
     {
-        brand: 'Brand C',
+        brand: 'GoodHome',
         pricePerLitre: 25,
         coverage: 8,
         canSize: [
@@ -228,6 +228,43 @@ function calculateTotalLitres(user) {
     }
     return totalLitres;
 }
+;
+// Recommendation function
+function recommendation(totalLitres) {
+    const recommendations = {};
+    let totalAmount = 0;
+    for (const key in totalLitres) {
+        const [brand, ...colourParts] = key.split(' ');
+        const colour = colourParts.join(' ');
+        const litresNeeded = totalLitres[key];
+        // Find the corresponding paint object
+        const paint = paints.find(p => p.brand === brand);
+        if (!paint) {
+            console.error(`Paint brand ${brand} not found`);
+            continue;
+        }
+        // Sort can sizes from largest to smallest
+        const sortedCanSizes = paint.canSize.sort((a, b) => b.size - a.size);
+        let remainingLitres = litresNeeded;
+        const cans = [];
+        // Calculate the optimal cans needed
+        for (const can of sortedCanSizes) {
+            while (remainingLitres > 0 && remainingLitres >= can.size) {
+                cans.push([can.size, can.price]);
+                totalAmount += can.price;
+                remainingLitres -= can.size;
+            }
+        }
+        // If there are still remaining litres, add the smallest can available
+        if (remainingLitres > 0) {
+            const smallestCan = sortedCanSizes[sortedCanSizes.length - 1];
+            cans.push([smallestCan.size, smallestCan.price]);
+            totalAmount += smallestCan.price;
+        }
+        recommendations[key] = cans;
+    }
+    return { recommendations, totalAmount };
+}
 // Main function
 async function main() {
     // Step 1: Ask the user for their name and generate user object
@@ -262,7 +299,8 @@ async function main() {
     };
     // Calculate total litres needed for each brand
     const totalLitres = calculateTotalLitres(user);
-    console.log(totalLitres);
+    // Recommendation and total amount
+    const { recommendations, totalAmount } = recommendation(totalLitres);
 }
 // Run the main function
 main();
