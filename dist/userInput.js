@@ -131,7 +131,7 @@ export async function createWall(wallNumber) {
     const areaToPaint = totalArea - areaToSubtract;
     // Ask for paint choice
     const paintChoices = paints.map((paint, index) => ({
-        name: `Brand: ${paint.brand} - Price/litre: £${paint.pricePerLitre} - Coverage: ${paint.coverage}m²/litre - Available Colours: ${paint.colours.join(", ")}`,
+        name: `Brand: ${paint.brand} - Price/litre: £${paint.avgPricePerLitre} - Coverage: ${paint.coverage}m²/litre - Available Colours: ${paint.colours.join(", ")}`,
         value: index
     }));
     const paintResponse = await inquirer.prompt({
@@ -151,7 +151,7 @@ export async function createWall(wallNumber) {
     });
     const paint = {
         brand: chosenPaint.brand,
-        pricePerLitre: chosenPaint.pricePerLitre,
+        pricePerLitre: chosenPaint.avgPricePerLitre,
         coverage: chosenPaint.coverage,
         colour: paintColourResponse.paintColour
     };
