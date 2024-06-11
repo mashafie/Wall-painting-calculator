@@ -4,7 +4,7 @@ import { User, Wall, Room, Paint } from '../src/interfaces';
 // Mock data for testing
 const mockPaint: Paint = {
     brand: 'Dulux',
-    pricePerLitre: 17.99,
+    pricePerLitre: 16.64,
     coverage: 17,
     colour: 'White'
 };

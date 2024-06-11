@@ -20,7 +20,7 @@ async function main() {
         // Array to hold the walls
         const walls: Wall[] = [];
 
-        // Step 4: Create each wall using the createWall function and add it to the wall array
+        // Step 4: Create each wall object using the createWall function and add it to the wall array
         for (let j = 1; j <= numberOfWalls; j++) {
             const wall = await createWall(j);
             walls.push(wall);
@@ -37,18 +37,18 @@ async function main() {
     const user: User = {
         name: userName,
         totalRooms: numberOfRooms,
-        // Calculates the total number of walls in the rooms array using
+        // Calculates the total number of walls in the rooms array
         totalWall: rooms.reduce((total, room) => total + room.walls.length, 0),
         rooms: rooms
     };
     
-    // Step 4:  Calculate total litres needed for each brand
+    // Step 5:  Calculate total litres needed for each brand
     const totalLitres = calculateTotalLitres(user)
 
-    // Step 5: Recommendation for cans to buy and total amount
+    // Step 6: Recommendation for cans to buy and total amount
     const { recommendations, totalAmount } = recommendation(totalLitres); 
 
-    // Step 6: Turn recommendations into a table
+    // Step 7: Turn recommendations into a table
     createTables(totalLitres, recommendations, totalAmount);
 }
 
